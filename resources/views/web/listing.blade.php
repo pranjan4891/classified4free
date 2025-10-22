@@ -217,10 +217,10 @@
            var href = $(this).attr('href');
            var categoryName = href.split('/add-listing/')[1]; // Extract category name from URL
 
-           if (categoryName) {
+  if (categoryName) {
                // Load subcategories via AJAX
                $.ajax({
-                   url: '{{ route("web.subcategories", ":category") }}'.replace(':category', categoryName),
+                   url: '{{ url("/api/subcategories/") }}' + categoryName,
                    type: 'GET',
                    beforeSend: function() {
                        $('#subCategoryList').append('<div class="loader">Loading...</div>');
@@ -256,7 +256,7 @@
 
            if (data && data.length > 0) {
                data.forEach(function(subcat) {
-                   var link = '{{ route("web.listing", ["category" => ":category", "subcategory" => ":subcategory"]) }}'.replace(':category', subcat.category_slug).replace(':subcategory', subcat.slug);
+                   var link = '{{ url("/add-listing/") }}' + subcat.category_slug + '/' + subcat.slug;
                    subCategoryList.append('<li><a href="' + link + '"><i></i><span>' + subcat.name + '</span></a></li>');
                });
            }
