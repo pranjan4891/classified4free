@@ -86,7 +86,7 @@
                                 <div class="filter-options-widget">
                                     <ul>
                                         <li class="{{ !isset($category) ? 'active' : '' }}">
-                                            <a href="{{ route('web.listing') }}" class="no-ajax">
+                                            <a href="{{ url('/add-listing') }}" class="no-ajax">
                                                 <i></i>
                                                 <span>All Categories</span>
                                             </a>
@@ -112,7 +112,7 @@
                                 <div class="filter-options-widget">
                                     <ul id="subCategoryList">
                                         <li class="{{ !isset($subcategory) ? 'active' : '' }}">
-                                            <a href="{{ isset($category) ? route('web.listing', $category->slug) : route('web.listing') }}" class="no-ajax">
+                                            <a href="{{ isset($category) ? url('/add-listing/' . $category->slug) : url('/add-listing') }}" class="no-ajax">
                                                 <i></i>
                                                 <span>All {{ isset($category) ? $category->name : 'Categories' }}</span>
                                             </a>
