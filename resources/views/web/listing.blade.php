@@ -86,7 +86,7 @@
                                 <div class="filter-options-widget">
                                     <ul>
                                         <li class="{{ !isset($category) ? 'active' : '' }}">
-                                            <a href="{{ route('web.listing') }}">
+                                            <a href="{{ route('web.listing') }}" class="no-ajax">
                                                 <i></i>
                                                 <span>All Categories</span>
                                             </a>
@@ -112,7 +112,7 @@
                                 <div class="filter-options-widget">
                                     <ul id="subCategoryList">
                                         <li class="{{ !isset($subcategory) ? 'active' : '' }}">
-                                            <a href="{{ isset($category) ? route('web.listing', $category->slug) : route('web.listing') }}">
+                                            <a href="{{ isset($category) ? route('web.listing', $category->slug) : route('web.listing') }}" class="no-ajax">
                                                 <i></i>
                                                 <span>All {{ isset($category) ? $category->name : 'Categories' }}</span>
                                             </a>
@@ -209,6 +209,9 @@
    $(document).ready(function() {
        // Handle category clicks - update subcategories via AJAX
        $('ul li a[href*="add-listing/"]').click(function(e) {
+           if ($(this).hasClass('no-ajax')) {
+               return; // Skip AJAX for no-ajax links
+           }
            e.preventDefault();
 
            var href = $(this).attr('href');
