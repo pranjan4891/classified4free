@@ -1,7 +1,231 @@
 @extends('web.includes.main')
 @section('content')
-<!-- Make sure Font Awesome is included -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+   /* Form Design Improvements */
+   .form-wrapper {
+       background: #fff;
+       border-radius: 8px;
+       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+       padding: 30px;
+   }
+   
+   .field-block {
+       margin-bottom: 25px;
+       display: flex;
+       align-items: center;
+   }
+   
+   .field-block label {
+       font-weight: 600;
+       color: #333;
+       margin-bottom: 0;
+       padding-right: 15px;
+   }
+   
+   .field-block .required::after {
+       content: " *";
+       color: #dc3545;
+   }
+   
+   .field-block input[type="text"],
+   .field-block input[type="email"],
+   .field-block input[type="tel"],
+   .field-block input[type="number"],
+   .field-block textarea {
+       width: 100%;
+       padding: 12px 15px;
+       border: 2px solid #e0e0e0;
+       border-radius: 6px;
+       font-size: 14px;
+       transition: all 0.3s ease;
+       background: #fff;
+       font-family: inherit;
+   }
+   
+   .field-block select {
+       width: 100%;
+       padding: 12px 35px 12px 15px;
+       border: 2px solid #e0e0e0;
+       border-radius: 6px;
+       font-size: 14px;
+       transition: all 0.3s ease;
+       background: #fff;
+       appearance: none;
+       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10L6 9z'/%3E%3C/svg%3E");
+       background-repeat: no-repeat;
+       background-position: right 12px center;
+       cursor: pointer;
+       font-family: inherit;
+   }
+   
+   .field-block select:focus {
+       outline: none;
+       border-color: #007bff;
+       box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23007bff' d='M6 9L1 4h10L6 9z'/%3E%3C/svg%3E");
+   }
+   
+   .field-block input:focus,
+   .field-block textarea:focus {
+       outline: none;
+       border-color: #007bff;
+       box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+   }
+   
+   .field-block input::placeholder,
+   .field-block select option:first-child {
+       color: #999;
+   }
+   
+   .field-block select option {
+       color: #333;
+       padding: 8px;
+   }
+   
+   /* Ensure all inputs have same height and alignment */
+   .field-block input,
+   .field-block select,
+   .field-block textarea {
+       min-height: 48px;
+       box-sizing: border-box;
+       line-height: 1.5;
+   }
+   
+   .field-block select {
+       padding-right: 40px;
+   }
+   
+   /* Price fields alignment */
+   .price-fields {
+       display: flex;
+       gap: 15px;
+       align-items: flex-start;
+   }
+   
+   .price-fields > div {
+       flex: 1;
+   }
+   
+   /* CKEditor container */
+   .ck-editor-container {
+       min-height: 250px;
+   }
+   
+   /* File input styling */
+   input[type="file"] {
+       padding: 8px;
+       border: 2px dashed #ddd;
+       border-radius: 6px;
+       background: #f8f9fa;
+       cursor: pointer;
+       transition: all 0.3s ease;
+   }
+   
+   input[type="file"]:hover {
+       border-color: #007bff;
+       background: #f0f7ff;
+   }
+   
+   /* Submit buttons */
+   .form-submit-buttons {
+       display: flex;
+       gap: 15px;
+       justify-content: center;
+       margin-top: 30px;
+       padding-top: 20px;
+       border-top: 2px solid #f0f0f0;
+   }
+   
+   .btn {
+       padding: 12px 30px;
+       border-radius: 6px;
+       font-weight: 600;
+       text-transform: uppercase;
+       letter-spacing: 0.5px;
+       transition: all 0.3s ease;
+       border: none;
+   }
+   
+   .btn:hover {
+       transform: translateY(-2px);
+       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+   }
+   
+   .btn-blue {
+       background: #007bff;
+       color: #fff;
+   }
+   
+   .btn-green {
+       background: #28a745;
+       color: #fff;
+   }
+   
+   /* Mobile Responsive */
+   @media (max-width: 768px) {
+       .form-wrapper {
+           padding: 20px;
+       }
+       
+       .field-block {
+           flex-direction: column;
+           align-items: flex-start;
+       }
+       
+       .field-block label {
+           margin-bottom: 8px;
+           padding-right: 0;
+       }
+       
+       .price-fields {
+           flex-direction: column;
+           gap: 10px;
+       }
+       
+       .form-submit-buttons {
+           flex-direction: column;
+       }
+       
+       .form-submit-buttons .btn {
+           width: 100%;
+       }
+   }
+   
+   .is-invalid {
+       border-color: #dc3545 !important;
+   }
+   .invalid-feedback {
+       display: block;
+       width: 100%;
+       margin-top: 0.25rem;
+       font-size: 0.875em;
+       color: #dc3545;
+   }
+   /* Hide the "Rich Text Editor" label and screen reader text */
+   .ck-editor__label,
+   label[for="description"]:not(.required),
+   .ck-editor__main label,
+   .ck-toolbar__label,
+   .ck-label,
+   label[aria-describedby],
+   .ck.ck-labeled-field-view label {
+       display: none !important;
+       visibility: hidden !important;
+       opacity: 0 !important;
+   }
+   /* Target specific CKEditor accessibility labels */
+   label[for="description"]:not(.required) {
+       display: none !important;
+   }
+   /* Hide any text that says "Rich Text Editor" */
+   label:contains("Rich Text Editor"),
+   span:contains("Rich Text Editor") {
+       display: none !important;
+   }
+</style>
+<!-- Make sure Font Awesome is included -->
 <style>
    select#headingSelect {
    background: #efefef;
@@ -55,7 +279,7 @@
    <div class="container">
       <div class="breadcrumb">
          <ul>
-            <li><a href="#">Home</a></li>
+            <li><a href="{{ route('web.index') }}">Home</a></li>
             <li>
                Post your ad
             </li>
@@ -107,7 +331,7 @@
                            <select name="category_id" id="categorySelect" class="form-control" style="height: 40px;" required>
                               <option value="">Select Category</option>
                               @foreach($categories as $category)
-                              <option value="{{ $category->id }}">{{ $category->name }}</option>
+                              <option value="{{ $category->id }}" {{ isset($ad) && $ad->category_id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                               @endforeach
                            </select>
                         </div>
@@ -119,23 +343,25 @@
                         <div class="col-xs-12 col-md-9">
                            <select name="subcategory_id" id="subcategorySelect" class="form-control" style="height: 40px;" required>
                               <option value="">Select Subcategory</option>
-                              {{-- @if(isset($ad) && $ad->category)
+                              @if(isset($ad) && $ad->category)
                                  @foreach($ad->category->subcategories as $subcat)
-                                 <option value="{{ $subcat->id }}" {{ isset($ad) && $ad->subcategory_id == $subcat->id ? 'selected' : '' }}>{{ $subcat->name }}</option>
+                                 <option value="{{ $subcat->id }}" {{ $ad->subcategory_id == $subcat->id ? 'selected' : '' }}>{{ $subcat->name }}</option>
                                  @endforeach
-                              @endif --}}
+                              @endif
                            </select>
                         </div>
                      </div>
                      <div class="row field-block">
                             <div class="col-xs-12 col-md-3">
-                                <label  for="price">Price</label>
+                                <label for="price">Price</label>
                             </div>
-                            <div class="col-xs-12 col-md-4">
+                            <div class="col-xs-12 col-md-9 price-fields">
+                                <div>
                                 <input type="number" name="price" value="{{ $ad->price ?? '' }}" class="form-control" placeholder="Enter Price" step="0.01">
                             </div>
-                            <div class="col-xs-12 col-md-4">
+                                <div>
                                 <input type="number" name="negotiable_price" value="{{ $ad->negotiable_price ?? '' }}" class="form-control" placeholder="Negotiable Price" step="0.01">
+                                </div>
                             </div>
                         </div>
                         <div class="row field-block">
@@ -146,7 +372,7 @@
                                 <select name="country_id" id="countrySelect" class="form-control" required>
                                     <option value="">Select Country</option>
                                     @foreach($countries as $country)
-                                    <option value="{{ $country->id }}">{{ $country->name }}</option>
+                                    <option value="{{ $country->id }}" {{ isset($ad) && $ad->country_id == $country->id ? 'selected' : '' }}>{{ $country->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -156,9 +382,7 @@
                                 <label class="required">City</label>
                             </div>
                             <div class="col-xs-12 col-md-9">
-                                <select name="city_id" id="citySelect" class="form-control" required>
-                                    <option value="">Select City</option>
-                                </select>
+                                <input type="text" name="city_name" value="{{ $ad->city_name ?? '' }}" class="form-control" placeholder="Enter city name" required>
                             </div>
                         </div>
                         <div class="row field-block mb-3 align-items-center">
@@ -166,42 +390,24 @@
                                 <label for="featuredImage" class="form-label">Featured Image</label>
                             </div>
                             <div class="col-12 col-md-9">
+                                @if(isset($ad) && $ad->featured_image)
+                                <div style="margin-bottom: 15px;">
+                                    <p style="margin-bottom: 10px; color: #666;">Current Image:</p>
+                                    <img src="{{ asset('storage/app/public/' . $ad->featured_image) }}" alt="Current Image" style="max-width: 200px; max-height: 150px; border: 2px solid #ddd; border-radius: 6px; padding: 5px; background: #fff;">
+                                </div>
+                                @endif
                                 <input type="file" id="featuredImage" name="featured_image" class="form-control" accept="image/*">
+                                @if(isset($ad) && $ad->featured_image)
+                                <small style="display: block; margin-top: 5px; color: #999;">Leave empty to keep current image</small>
+                                @endif
                             </div>
                         </div>
                         <div class="row field-block">
                             <div class="col-xs-12 col-md-3">
                                 <label class="required">Ad Description</label>
                             </div>
-                            {{-- <div class="col-xs-12 col-md-9">
-
-                                <textarea name="description" id="create201" class="form-control" placeholder="Include the brand, model, age and any included accessories." rows="10" required></textarea>
-                            </div> --}}
                             <div class="col-xs-12 col-md-9">
-                                <div style="margin-bottom:10px;">
-                                    <button onclick="document.execCommand('bold')"><b>B</b></button>
-
-                                    <select id="headingSelect" onchange="setHeading(this.value)" class="textheading">
-
-                                        <option value="H1">H1</option>
-                                        <option value="H2">H2</option>
-                                        <option value="H3">H3</option>
-                                        <option value="H4">H4</option>
-                                        <option value="H5">H5</option>
-                                        <option value="H6">H6</option>
-                                        <option value="P">Paragraph</option>
-                                    </select>
-                                    <button onclick="createLink()">🔗</button>
-                                </div>
-
-                                <textarea name="description" id="create201"
-                                    contenteditable="true"
-                                    placeholder="Include the brand, model, age and any included accessories."
-                                    style="border:1px solid #ccc; padding:10px; min-height:150px; border-radius:4px;
-                                            white-space:pre-wrap; font-family:sans-serif; line-height:25px;">
-                                </textarea>
-
-
+                                <textarea name="description" id="description" class="form-control" placeholder="Include the brand, model, age and any included accessories." rows="10" required>{{ $ad->description ?? '' }}</textarea>
                             </div>
                         </div>
                         <div class="row field-block">
@@ -236,8 +442,14 @@
                                 <input type="tel" name="phone" value="{{ $ad->phone ?? '' }}" class="form-control" placeholder="With Country Code">
                             </div>
                         </div>
-                         <button type="submit" name="action" value="preview" class="btn btn-blue btn-md"><i class="fa fa-eye"></i> Preview Ad</button>
-                         <button type="submit" class="btn btn-green btn-md"><i class="fa fa-plus-circle"></i> {{ isset($ad) ? 'Update' : 'Add' }}</button>
+                         <div class="form-submit-buttons">
+                             <button type="submit" name="action" value="preview" class="btn btn-blue btn-md">
+                                 <i class="fa fa-eye"></i> Preview Ad
+                             </button>
+                             <button type="submit" class="btn btn-green btn-md">
+                                 <i class="fa fa-plus-circle"></i> {{ isset($ad) ? 'Update' : 'Add' }}
+                             </button>
+                         </div>
 
                   </div>
 
@@ -264,6 +476,75 @@
 
 @endsection
 @push('scripts')
+<!-- CKEditor CDN -->
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+
+<script>
+   // Initialize CKEditor
+   ClassicEditor
+       .create(document.querySelector('#description'), {
+           toolbar: {
+               items: [
+                   'heading', '|',
+                   'bold', 'italic', 'underline', 'strikethrough', '|',
+                   'bulletedList', 'numberedList', '|',
+                   'outdent', 'indent', '|',
+                   'blockQuote', 'insertTable', '|',
+                   'link', '|',
+                   'undo', 'redo'
+               ]
+           },
+           language: 'en',
+           table: {
+               contentToolbar: [
+                   'tableColumn',
+                   'tableRow',
+                   'mergeTableCells'
+               ]
+           },
+           // Remove the label/labeledView configuration to hide labels
+           removePlugins: ['LabeledSupport']
+       })
+       .then(editor => {
+           console.log('CKEditor initialized successfully');
+           window.editor = editor;
+           
+           // Hide the "Rich Text Editor" label programmatically
+           setTimeout(function() {
+               // Find and hide all labels that might contain "Rich Text Editor"
+               $('label, span, div').each(function() {
+                   var text = $(this).text();
+                   if (text && text.trim() === 'Rich Text Editor') {
+                       $(this).hide().css('display', 'none !important');
+                   }
+               });
+               
+               // Also hide CKEditor accessibility labels
+               $('.ck-labeled-field-view label, .ck-editor__label, label[for="description"]:not(.required)').hide();
+           }, 100);
+           
+           // Ensure content is updated on form submission
+           editor.model.document.on('change:data', () => {
+               editor.updateSourceElement();
+               
+               // Clear validation error when user starts typing
+               var descriptionField = $('[name="description"]');
+               if (descriptionField.hasClass('is-invalid')) {
+                   var editorContent = editor.getData();
+                   // Strip HTML tags to check for actual content
+                   var textContent = editorContent.replace(/<[^>]*>/g, '').trim();
+                   
+                   if (textContent && textContent.length > 0) {
+                       descriptionField.removeClass('is-invalid');
+                       descriptionField.next('.invalid-feedback').remove();
+                   }
+               }
+           });
+       })
+       .catch(error => {
+           console.error('Error initializing CKEditor:', error);
+       });
+</script>
 
 <script>
    $(document).ready(function() {
@@ -290,29 +571,73 @@
            }
        });
 
-       // Load cities when country is selected
-       $('#countrySelect').change(function() {
-           var countryId = $(this).val();
-           if (countryId) {
-               // Find the country name from the selected option
-               var countryName = $('#countrySelect option:selected').text();
-               $.ajax({
-                   url: '{{ route("api.cities") }}',
-                   type: 'GET',
-                   data: { country: countryName },
-                   success: function(data) {
-                       $('#citySelect').html('<option value="">Select City</option>');
-                       $.each(data, function(key, city) {
-                           $('#citySelect').append('<option value="' + city.id + '">' + city.name + '</option>');
-                       });
-                   },
-                   error: function(xhr, status, error) {
-                       console.error('Error loading cities:', error);
-                   }
-               });
-           } else {
-               $('#citySelect').html('<option value="">Select City</option>');
+       // Handle form submission to ensure CKEditor content is included
+       $('form').on('submit', function(e) {
+           console.log('Form submission started');
+           
+           // Update the textarea with CKEditor content before validation
+           if (window.editor) {
+               console.log('Updating CKEditor content');
+               window.editor.updateSourceElement();
+               
+               // Get the CKEditor content directly
+               var editorContent = window.editor.getData();
+               console.log('CKEditor content:', editorContent);
+               
+               // Update the textarea value manually
+               $('#description').val(editorContent);
            }
+           
+           // Validate required fields
+           var isValid = true;
+           var requiredFields = ['title', 'description', 'category_id', 'subcategory_id', 'country_id', 'city_name', 'email'];
+           
+           requiredFields.forEach(function(fieldName) {
+               var field = $('[name="' + fieldName + '"]');
+               var fieldValue = field.val();
+               
+               // Special handling for description field with CKEditor
+               if (fieldName === 'description' && window.editor) {
+                   fieldValue = window.editor.getData();
+                   console.log('Description from CKEditor:', fieldValue);
+                   
+                   // Strip HTML tags to check for actual content
+                   var textContent = fieldValue.replace(/<[^>]*>/g, '').trim();
+                   console.log('Description text content:', textContent);
+                   
+                   // Use text content for validation
+                   if (textContent) {
+                       fieldValue = textContent;
+                   }
+               }
+               
+               console.log('Field ' + fieldName + ':', fieldValue);
+               
+               // Check if field is empty or contains only whitespace/HTML tags
+               var isEmpty = !fieldValue || !fieldValue.trim() || fieldValue.trim() === '<p></p>' || fieldValue.trim() === '<p>&nbsp;</p>';
+               
+               if (field.length && isEmpty) {
+                   isValid = false;
+                   field.addClass('is-invalid');
+                   if (!field.next('.invalid-feedback').length) {
+                       field.after('<div class="invalid-feedback">This field is required.</div>');
+                   }
+               } else {
+                   field.removeClass('is-invalid');
+                   field.next('.invalid-feedback').remove();
+               }
+           });
+           
+           console.log('Form validation result:', isValid);
+           
+           if (!isValid) {
+               e.preventDefault();
+               alert('Please fill in all required fields.');
+               return false;
+           }
+           
+           console.log('Form submission proceeding');
+           return true;
        });
    });
 

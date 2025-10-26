@@ -31,10 +31,11 @@ Route::put('/add-edit/{uuid}', [WebController::class, 'update'])->name('web.upda
 Route::delete('/add-delete/{uuid}', [WebController::class, 'destroy'])->name('web.destroy');
 
 Route::get('/add-listing/{category?}/{subcategory?}', [WebController::class, 'listing'])->name('web.listing');
-Route::get('/add-detail/{uuid}', [WebController::class, 'detail'])->name('web.detail');
-Route::get('/ad/{uuid}', [WebController::class, 'detail'])->name('web.detail.short');
+Route::get('/add-detail/{vid}', [WebController::class, 'detail'])->name('web.detail');
+Route::get('/ad/{vid}', [WebController::class, 'detail'])->name('web.detail.short');
 
 // API routes for dynamic subcategories and cities
 Route::get('/api/subcategories', [WebController::class, 'getSubcategories'])->name('api.subcategories');
 Route::get('/api/subcategories/{category}', [WebController::class, 'getSubcategoriesByCategory'])->name('web.subcategories');
-Route::get('/api/cities', [WebController::class, 'getCities'])->name('api.cities');
+Route::get('/api/countries', [WebController::class, 'getCountries'])->name('api.countries');
+Route::get('/api/categories', [WebController::class, 'getCategories'])->name('api.categories');

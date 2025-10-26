@@ -38,6 +38,257 @@
       <link href="{{asset('public/assets/css/style.css')}}" rel="stylesheet" type="text/css">
       <!--put your custom css on the file below-->
       <link href="{{asset('public/assets/css/custom.css')}}" rel="stylesheet" type="text/css">
+      <style>
+         /* Modern Header Search Design */
+         .header-search-container {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            max-width: 800px;
+            margin: 0 auto;
+         }
+         
+         .search-field {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-right: 1px solid #e0e0e0;
+            min-width: 150px;
+         }
+         
+         .search-field:last-child {
+            border-right: none;
+            background: #fff;
+         }
+         
+         .search-field input, .search-field button {
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 12px 15px;
+            font-size: 14px;
+            color: #666;
+         }
+         
+         .search-field input::placeholder {
+            color: #999;
+         }
+         
+         .search-field button {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 120px;
+            text-align: left;
+         }
+         
+         .search-field button:hover {
+            background: #f0f0f0;
+         }
+         
+         .search-field .dropdown-icon {
+            margin-left: auto;
+            color: #999;
+            font-size: 12px;
+         }
+         
+         .search-field .search-icon {
+            color: #999;
+            font-size: 16px;
+         }
+         
+         .search-input {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+         }
+         
+         .search-input input {
+            width: 100%;
+            padding-right: 40px;
+         }
+         
+         .search-input .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 16px;
+            transition: color 0.2s;
+         }
+         
+         .search-input .search-icon:hover {
+            color: #007bff;
+         }
+         
+         /* Dropdown Styles */
+         .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+            min-width: 300px;
+         }
+         
+         .dropdown-menu.open {
+            display: block;
+         }
+         
+         .dropdown-search {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+         }
+         
+        .dropdown-search input {
+            width: 100%;
+            padding: 10px 35px 10px 12px;
+            border: 2px solid #007bff;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fff;
+            color: #333;
+        }
+        
+        .dropdown-search input:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        }
+        
+        .dropdown-search input::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+        
+        /* Search icon inside input */
+        .dropdown-search::after {
+            content: '\f002';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #007bff;
+            pointer-events: none;
+        }
+         
+         .dropdown-header {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+         }
+         
+         .dropdown-content {
+            max-height: 300px;
+            overflow-y: auto;
+         }
+         
+         .dropdown-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+         }
+         
+         .dropdown-list li {
+            border-bottom: 1px solid #f0f0f0;
+         }
+         
+         .dropdown-list li:last-child {
+            border-bottom: none;
+         }
+         
+         .dropdown-list a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.2s;
+         }
+         
+         .dropdown-list a:hover {
+            background: #f8f9fa;
+         }
+         
+         .dropdown-list a.active {
+            background: #007bff;
+            color: #fff;
+         }
+         
+         .dropdown-list .icon {
+            margin-right: 10px;
+            width: 16px;
+            text-align: center;
+         }
+         
+         .dropdown-list .arrow {
+            margin-left: auto;
+            color: #999;
+            font-size: 12px;
+         }
+         
+         
+         /* Country Dropdown - Grid Layout */
+         .country-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0;
+         }
+         
+         .country-grid .dropdown-list {
+            display: contents;
+         }
+         
+         .country-grid .dropdown-list li {
+            border: none;
+         }
+         
+         .country-grid .dropdown-list a {
+            padding: 10px 12px;
+            font-size: 13px;
+            border-right: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+         }
+         
+         
+         /* Mobile Responsive */
+         @media (max-width: 768px) {
+            .header-search-container {
+               flex-direction: column;
+               gap: 10px;
+            }
+            
+            .search-field {
+               width: 100%;
+               border-right: none;
+               border-bottom: 1px solid #e0e0e0;
+            }
+            
+            .search-input {
+               min-width: auto;
+            }
+         }
+      </style>
    </head>
    <body>
       <div class="web-app">
@@ -49,189 +300,59 @@
                   <a href="{{route('web.index')}}"><img src="{{asset('public/assets/img/LOGO.png')}}" alt="adspot"></a>
                </div>
                <div class="clearfix">
-                  <a href="{{route('web.create')}}" class="btn btn-green pull-right quick-post">Post your ad</a>
-                  <div class="pull-right search-filters">
-                     <div class="mega-dropdown pull-left">
-                        <button>Select Country / Region</button>
-                        <i class="fa fa-navicon"></i>
-                        <div class="mega-content">
-                           <div class="inner">
-                              <!-- 🔍 Search box -->
-                              <div class="search-widget">
+                  <a href="{{route('web.create')}}" class="btn btn-green pull-right quick-post">POST YOUR AD</a>
+                  <div class="pull-right">
+                     <div class="header-search-container">
+                        <!-- Country/Region Field -->
+                        <div class="search-field">
+                           <button onclick="toggleCountryDropdown()">
+                              <span id="selectedCountryText">Select Country / R...</span>
+                              <i class="fa fa-navicon dropdown-icon"></i>
+                           </button>
+                           <div class="dropdown-menu" id="countryDropdown">
+                              <div class="dropdown-search">
                                  <input type="text" id="countrySearch" placeholder="Search country / region" onkeyup="filterCountries()">
-                                 <button type="submit"><i class="fa fa-search"></i></button>
                               </div>
-                              <!-- 🌍 Country / Region list -->
-                              <div class="mega-list" id="countryListContainer">
-                                 <header><i class="adicon-globe"></i> Select Country / Region</header>
-                                 <ul id="countryList" class="clearfix"></ul>
+                              <div class="dropdown-header">
+                                 <i class="fa fa-globe"></i>
+                                 Select Country / Region
                               </div>
-                              <!-- 🏙️ City list -->
-                              <div class="mega-list" id="cityListContainer" style="display:none;">
-                                 <header>
-                                    <i class="adicon-buildings"></i> Select City
-                                    <a href="#" onclick="backToCountries()" style="float:right;font-size:13px;">← Back</a>
-                                 </header>
-                                 <ul id="cityList" class="clearfix"></ul>
+                              <div class="dropdown-content">
+                                 <div class="country-grid">
+                                    <ul id="countryList" class="dropdown-list">
+                                       <li><span>Loading countries...</span></li>
+                                    </ul>
+                                 </div>
                               </div>
                            </div>
                         </div>
-                     </div>
-                     <div class="mega-filtered-search">
-                        <div class="mega-dropdown">
-                           <button>Select Category</button>
-                           <i class="fa fa-navicon"></i>
-                           <div class="mega-content">
-                              <ul class="category-list">
-                                 <li><a href="#"><i class="adicon-grid"></i>All Categories</a></li>
-                                 <li>
-                                    <a href="#"><i class="adicon-car"></i>Vehicles</a>
-                                    <ul>
-                                       <li><a href="#">Cars</a></li>
-                                       <li><a href="#">Bikes</a></li>
-                                       <li><a href="#">Scooters</a></li>
-                                       <li><a href="#">Commercial Vehicles</a></li>
-                                       <li><a href="#">Spare Parts & Accessories</a></li>
-                                       <li><a href="#">Electric Vehicles</a></li>
-                                       <li><a href="#">Boats</a></li>
-                                       <li><a href="#">Others</a></li>
-                                    </ul>
-                                 </li>
-                                 <li>
-                                    <a href="#"><i class="adicon-tablet"></i>Industrial & Business</a>
-                                    <ul>
-                                       <li><a href="#">Machinery & Equipment</a></li>
-                                       <li><a href="#">Industrial Tools</a></li>
-                                       <li><a href="#">Business for Sale</a></li>
-                                       <li><a href="#">Franchise Opportunities</a></li>
-                                       <li><a href="#">Office Supplies</a></li>
-                                       <li><a href="#">Construction Material</a></li>
-                                    </ul>
-                                 </li>
-                                 <li>
-                                    <a href="#"><i class="adicon-tv"></i>Electronics & Appliances</a>
-                                    <ul>
-                                       <li><a href="#">Mobile Phones</a></li>
-                                       <li><a href="#">Tablets</a></li>
-                                       <li><a href="#">Laptops & Computers</a></li>
-                                       <li><a href="#">TVs, Audio & Video</a></li>
-                                       <li><a href="#">Cameras & Lenses</a></li>
-                                       <li><a href="#">Gaming Consoles</a></li>
-                                       <li><a href="#">Home Appliances (Fridge, AC, Washing Machine)</a></li>
-                                       <li><a href="#">Smart Gadgets</a></li>
-                                    </ul>
-                                 </li>
-                                 <li>
-                                    <a href="#"><i class="adicon-sofa"></i>Furniture & Home Decor</a>
-                                    <ul>
-                                       <li><a href="#">Sofas & Chairs</a></li>
-                                       <li><a href="#">Beds & Wardrobes</a></li>
-                                       <li><a href="#">Tables & Desks</a></li>
-                                       <li><a href="#">Kitchen Furniture</a></li>
-                                       <li><a href="#">Office Furniture</a></li>
-                                       <li><a href="#">Home Decor Items</a></li>
-                                    </ul>
-                                 </li>
-                                 <li>
-                                    <a href="#"><i class="adicon-briefcase"></i>Jobs</a>
-                                    <ul>
-                                       <li><a href="#">Full-Time</a></li>
-                                       <li><a href="#">Part-Time</a></li>
-                                       <li><a href="#">Work From Home</a></li>
-                                       <li><a href="#">Freelance</a></li>
-                                       <li><a href="#">Internship</a></li>
-                                       <li><a href="#">Government Jobs</a></li>
-                                       <li><a href="#">Abroad Jobs</a></li>
-                                       <li><a href="#">Others</a></li>
-                                    </ul>
-                                 </li>
-                                 <li>
-                                    <a href="#"><i class="adicon-buildings"></i>Real Estate</a>
-                                    <ul>
-                                       <li><a href="#">Houses for Sale</a></li>
-                                       <li><a href="#">Houses for Rent</a></li>
-                                       <li><a href="#">Apartments / Flats</a></li>
-                                       <li><a href="#">Commercial Property</a></li>
-                                       <li><a href="#">Lands & Plots</a></li>
-                                       <li><a href="#">PG & Roommates</a></li>
-                                       <li><a href="#">Office Space</a></li>
-                                       <li><a href="#">Vacation Rentals</a></li>
-                                    </ul>
-                                 </li>
-                                 <li>
-                                    <a href="#"><i class="adicon-bell"></i>Services</a>
-                                    <ul>
-                                       <li><a href="#">Home Services (Plumber, Electrician, Carpenter)</a></li>
-                                       <li><a href="#">Repair Services (Mobile, Laptop, AC, etc.)</a></li>
-                                       <li><a href="#">Packers & Movers</a></li>
-                                       <li><a href="#">Beauty & Spa</a></li>
-                                       <li><a href="#">Coaching & Tuition</a></li>
-                                       <li><a href="#">Event Management</a></li>
-                                       <li><a href="#">Travel & Transport</a></li>
-                                       <li><a href="#">Legal & Financial</a></li>
-                                       <li><a href="#">Cleaning Services</a></li>
-                                    </ul>
-                                 </li>
-                                 <li>
-                                    <a href="#"><i class="adicon-hat"></i>Education & Learning</a>
-                                    <ul>
-                                       <li><a href="#">Coaching Classes</a></li>
-                                       <li><a href="#">Online Courses</a></li>
-                                       <li><a href="#">Study Material & Books</a></li>
-                                       <li><a href="#">Skill Development</a></li>
-                                       <li><a href="#">School / College Admissions</a></li>
-                                       <li><a href="#">Competitive Exams</a></li>
-                                    </ul>
-                                 </li>
-                                 <li>
-                                    <a href="#"><i class="adicon-dog"></i>Animals & Pet Care</a>
-                                    <ul>
-                                       <li><a href="#">Dogs</a></li>
-                                       <li><a href="#">Cats</a></li>
-                                       <li><a href="#">Birds</a></li>
-                                       <li><a href="#">Fish & Aquariums</a></li>
-                                       <li><a href="#">Pet Food & Accessories</a></li>
-                                       <li><a href="#">Pet Adoption</a></li>
-                                       <li><a href="#">Pet Grooming</a></li>
-                                    </ul>
-                                 </li>
-                                 <li>
-                                    <a href="#"><i class="adicon-heal"></i>Fashion & Lifestyle</a>
-                                    <ul>
-                                       <li><a href="#">Men’s Clothing</a></li>
-                                       <li><a href="#">Women’s Clothing</a></li>
-                                       <li><a href="#">Footwear</a></li>
-                                       <li><a href="#">Watches</a></li>
-                                       <li><a href="#">Jewellery</a></li>
-                                       <li><a href="#">Bags & Accessories</a></li>
-                                       <li><a href="#">Perfumes & Cosmetics</a></li>
-                                    </ul>
-                                 </li>
-                                 <li>
-                                    <a href="#"><i class="adicon-smile"></i>Kids & Baby Products</a>
-                                    <ul>
-                                       <li><a href="#">Baby Clothes</a></li>
-                                       <li><a href="#">Toys</a></li>
-                                       <li><a href="#">Baby Gear</a></li>
-                                       <li><a href="#">School Supplies</a></li>
-                                    </ul>
-                                 </li>
-                                 <li>
-                                    <a href="#"><i class="adicon-hearts"></i>Travel & Tourism</a>
-                                    <ul>
-                                       <li><a href="#">Holiday Packages</a></li>
-                                       <li><a href="#">Hotels & Stays</a></li>
-                                       <li><a href="#">Car Rentals</a></li>
-                                       <li><a href="#">Ticket Booking</a></li>
-                                       <li><a href="#">Adventure Tours</a></li>
-                                    </ul>
-                                 </li>
-                              </ul>
+                        
+                        <!-- Category Field -->
+                        <div class="search-field">
+                           <button onclick="toggleCategoryDropdown()">
+                              <span id="selectedCategoryText">Select Category</span>
+                              <i class="fa fa-navicon dropdown-icon"></i>
+                           </button>
+                           <div class="dropdown-menu" id="categoryDropdown">
+                              <div class="dropdown-header">
+                                 <i class="fa fa-th-large"></i>
+                                 Categories
+                              </div>
+                              <div class="dropdown-content">
+                                 <ul class="dropdown-list" id="categoryList">
+                                    <li><a href="#" onclick="selectCategory('', 'All Categories')" class="active">
+                                       <i class="fa fa-th icon"></i>All Categories
+                                    </a></li>
+                                    <li><span>Loading categories...</span></li>
+                                 </ul>
+                              </div>
                            </div>
                         </div>
-                        <div class="search-widget">
-                           <input type="text" placeholder="search">
-                           <button type="submit"><i class="fa fa-search"></i></button>
+                        
+                        <!-- Search Input Field -->
+                        <div class="search-field search-input">
+                           <input type="text" id="searchInput" placeholder="search" value="{{ request('q') }}" onkeypress="handleSearchKeypress(event)">
+                           <i class="fa fa-search search-icon" onclick="submitSearch(event)" style="cursor: pointer;"></i>
                         </div>
                      </div>
                   </div>
@@ -255,4 +376,3 @@
             </ul>
          </nav>
       </div>
-

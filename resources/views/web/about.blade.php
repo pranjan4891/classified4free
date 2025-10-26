@@ -4,7 +4,7 @@
         <div class="container">
             <div class="breadcrumb">
                 <ul>
-                    <li><a href="#">Home</a></li>
+                    <li><a href="{{ route('web.index') }}">Home</a></li>
                     <li>About us</li>
                 </ul>
             </div>
@@ -203,7 +203,7 @@
                                     <span>1</span>
                                 </div>
                                 <strong>World’s Biggest Classified Marketplace</strong>
-                                <a href="#" class="btn btn-green pull-right">Post and Ad</a>
+                                <a href="{{ route('web.create') }}" class="btn btn-green pull-right">Post and Ad</a>
                             </div>
                         </div>
                     </div>

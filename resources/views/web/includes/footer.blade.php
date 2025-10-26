@@ -38,214 +38,272 @@
 <script src="{{asset('public/assets/js/app.js')}}"></script>
 
 <script type="text/javascript">
-    const citiesByCountry = {
-        "USA": ["Basildon","Bedford","Benfleet","Billericay","Bishops Stortford","Braintree","Brentwood","Bury St Edmunds","Cambridge","Canvey Island","Chelmsford","Cheshunt","Clacton-on-Sea","Colchester","Dunstable","Ely","Felixstowe","Grays","Great Yarmouth","Harlow","Harpenden","Harwich","Hemel Hempstead","Hertford","Hitchin","Hoddesdon","Huntingdon","Ipswich","Kings Lynn","Leighton Buzzard","Lowestoft","Luton","Maldon","Norwich","Peterborough","Saffron Walden","Southend-on-Sea","St Albans","St Ives - Cambs","St Neots","Stevenage","Sudbury","Watford","Welwyn Garden City","Witham","Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","DC","Florida","Georgia","Guam","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","US Virgin Islands","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"],
-        "North East": ["Blyth","Chester-le-Street","Darlington","Durham","Gateshead","Hartlepool","Middlesbrough","Morpeth","Newcastle-upon-Tyne","North Shields","Redcar","South Shields","Stockton-on-Tees","Sunderland","Wallsend","Washington","Whitley Bay"],
-        "Yorkshire": ["Barnsley","Batley","Beverley","Bradford","Bridlington","Castleford","Dewsbury","Doncaster","Grimsby","Halifax","Harrogate","Huddersfield","Hull","Leeds","Rotherham","Scarborough","Sheffield","Wakefield","York"],
-        "East Midlands": ["Arnold","Beeston","Boston","Chesterfield","Corby","Derby","Gainsborough","Grantham","Hinckley","Kettering","Leicester","Lincoln","Loughborough","Mansfield","Nottingham","Skegness","Spalding"],
-        "London": ["Barking & Dagenham","Barnet","Bexley","Brent","Bromley","Camden","City of London","Croydon","Ealing","Enfield","Greenwich","Hackney","Hammersmith & Fulham","Haringey","Harrow","Havering","Hillingdon","Hounslow","Islington","Kensington & Chelsea","Kingston","Lambeth","Lewisham","Merton","Newham","Redbridge","Richmond","Southwark","Sutton","Tower Hamlets","Waltham Forest","Wandsworth","Westminster"],
-        "South West": ["Barnstaple","Bath","Bideford","Bournemouth","Bristol","Cheltenham","Exeter","Gloucester","Plymouth","Swindon","Taunton","Torquay","Truro","Weston-super-Mare","Yeovil"],
-        "Other Countries": ["Algeria","Argentina","Australia","Austria","Bangladesh","Belgium","Brazil","Canada","China","France","Germany","India","Japan","Nepal","New Zealand","Pakistan","Singapore","South Africa","Sri Lanka","United Arab Emirates","United Kingdom","USA","Zimbabwe"]
-    };
-
-    const countryList = document.getElementById('countryList');
-    const cityList = document.getElementById('cityList');
-    const megaContent = document.querySelector('.mega-content');
-    const dropdownButton = document.querySelector('.mega-dropdown > button');
-
-    let selectedCity = null;
+    // Global variables
     let selectedCountry = null;
+    let selectedCategoryId = null;
+    let selectedSubcategoryId = null;
+    let countries = [];
+    let categories = [];
 
-    // Populate country list
-    Object.keys(citiesByCountry).forEach(country => {
-        const li = document.createElement('li');
-        li.innerHTML = `<a href="#" onclick="showCities('${country}')">${country}</a>`;
-        countryList.appendChild(li);
+    // Load countries and categories on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCountries();
+        loadCategories();
     });
 
-    // Filter countries
+    // Load countries dynamically
+    function loadCountries() {
+        fetch('{{ route("api.countries") }}')
+            .then(response => response.json())
+            .then(data => {
+                countries = data;
+                populateCountries(data);
+            })
+            .catch(error => console.error('Error loading countries:', error));
+    }
+
+    // Populate country list
+    function populateCountries(data) {
+        const countryList = document.getElementById('countryList');
+        if (countryList) {
+            countryList.innerHTML = '';
+            data.forEach(country => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="#" onclick="selectCountry('${country.id}', '${country.name}')">${country.name}</a>`;
+                countryList.appendChild(li);
+            });
+        }
+    }
+
+    // Filter countries with improved search functionality
     function filterCountries() {
         const input = document.getElementById('countrySearch').value.toLowerCase();
+        const countryList = document.getElementById('countryList');
+        let visibleCount = 0;
+        let hasResults = false;
+        
+        // Filter and show/hide countries
         document.querySelectorAll('#countryList li').forEach(li => {
-            li.style.display = li.textContent.toLowerCase().includes(input) ? '' : 'none';
+            const countryText = li.textContent.toLowerCase();
+            const searchMatch = countryText.includes(input);
+            
+            if (searchMatch) {
+                li.style.display = '';
+                li.style.visibility = 'visible';
+                visibleCount++;
+                hasResults = true;
+            } else {
+                li.style.display = 'none';
+                li.style.visibility = 'hidden';
+            }
         });
+        
+        // Show "No results found" message if no countries match
+        let noResultsMsg = countryList.querySelector('.no-results');
+        
+        if (input.length > 0 && !hasResults && !noResultsMsg) {
+            const noResults = document.createElement('li');
+            noResults.className = 'no-results';
+            noResults.innerHTML = '<span style="padding: 20px; text-align: center; color: #999;">No countries found matching "' + input + '"</span>';
+            countryList.appendChild(noResults);
+        } else if (noResultsMsg && hasResults) {
+            noResultsMsg.remove();
+        } else if (noResultsMsg && input.length > 0) {
+            noResultsMsg.querySelector('span').textContent = 'No countries found matching "' + input + '"';
+        }
+        
+        // Update results counter
+        console.log('Found ' + visibleCount + ' countries matching "' + input + '"');
     }
 
-    // Show cities of selected country
-    function showCities(country) {
-        cityList.innerHTML = '';
-        selectedCountry = country;
-
-        citiesByCountry[country].forEach(city => {
-            const isSelected = (selectedCity === city && selectedCountry === country);
-            const li = document.createElement('li');
-            li.innerHTML = `
-            <a href="#" onclick="selectCity(event, '${city}', '${country}')"
-                style="${isSelected ? 'font-weight:bold;color:#007bff;' : ''}">
-                ${city}
-            </a>`;
-            cityList.appendChild(li);
-        });
-
-        document.getElementById('countryListContainer').style.display = 'none';
-        document.getElementById('cityListContainer').style.display = 'block';
-    }
-
-    // Go back to countries
-    function backToCountries() {
-        document.getElementById('cityListContainer').style.display = 'none';
-        document.getElementById('countryListContainer').style.display = 'block';
-    }
-
-    // Select city and close dropdown
-    function selectCity(event, city, country) {
+    // Select country and close dropdown
+    function selectCountry(countryId, countryName) {
         event.preventDefault();
         event.stopPropagation();
 
-        selectedCity = city;
-        selectedCountry = country;
-        dropdownButton.textContent = `${city}, ${country}`;
-
-        // Close dropdown immediately
-        megaContent.classList.remove('open');
-        dropdownButton.blur();
-
-        // Highlight selected
-        document.querySelectorAll('#cityList a').forEach(a => {
-            a.style.fontWeight = (a.textContent === city) ? 'bold' : 'normal';
-            a.style.color = (a.textContent === city) ? '#007bff' : '';
-        });
+        selectedCountry = { id: countryId, name: countryName };
+        const selectedCountryText = document.getElementById('selectedCountryText');
+        if (selectedCountryText) {
+            selectedCountryText.textContent = countryName;
+        }
+        closeCountryDropdown();
     }
 
-    // Toggle dropdown open/close
-    dropdownButton.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        // Toggle open class
-        megaContent.classList.toggle('open');
-
-        if (megaContent.classList.contains('open')) {
-            // When opened, reset to countries
-            document.getElementById('countryListContainer').style.display = 'block';
-            document.getElementById('cityListContainer').style.display = 'none';
+    // Close country dropdown
+    function closeCountryDropdown() {
+        const dropdown = document.getElementById('countryDropdown');
+        if (dropdown) {
+            dropdown.classList.remove('open');
         }
-    });
+    }
+
+    // Toggle country dropdown
+    function toggleCountryDropdown() {
+        const dropdown = document.getElementById('countryDropdown');
+        if (dropdown) {
+            dropdown.classList.toggle('open');
+            
+            // Close category dropdown if open
+            const categoryDropdown = document.getElementById('categoryDropdown');
+            if (categoryDropdown) {
+                categoryDropdown.classList.remove('open');
+            }
+        }
+    }
+
+    // Load categories dynamically
+    function loadCategories() {
+        fetch('{{ route("api.categories") }}')
+            .then(response => response.json())
+            .then(data => {
+                categories = data;
+                populateCategories(data);
+            })
+            .catch(error => console.error('Error loading categories:', error));
+    }
+
+    // Populate category list
+    function populateCategories(data) {
+        const categoryList = document.getElementById('categoryList');
+        if (categoryList) {
+            categoryList.innerHTML = '';
+
+            // Add "All Categories" option with active class by default
+            const allCategoriesLi = document.createElement('li');
+            allCategoriesLi.innerHTML = `
+                <a href="#" onclick="selectCategory('', 'All Categories')" class="active">
+                    <i class="fa fa-th icon"></i>All Categories
+                </a>
+            `;
+            categoryList.appendChild(allCategoriesLi);
+
+            data.forEach(category => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <a href="#" onclick="selectCategory('${category.id}', '${category.name}')">
+                        <i class="${category.icon || 'adicon-grid'} icon"></i>${category.name}
+                    </a>`;
+                categoryList.appendChild(li);
+            });
+        }
+    }
+
+    // Select category
+    function selectCategory(categoryId, categoryName) {
+        selectedCategoryId = categoryId;
+        selectedSubcategoryId = null; // Reset subcategory
+        
+        // Update selected category text
+        const selectedCategoryText = document.getElementById('selectedCategoryText');
+        if (selectedCategoryText) {
+            selectedCategoryText.textContent = categoryName;
+        }
+        
+        // Update active class in dropdown
+        const categoryList = document.getElementById('categoryList');
+        if (categoryList) {
+            // Remove active class from all items
+            const allLinks = categoryList.querySelectorAll('a');
+            allLinks.forEach(link => link.classList.remove('active'));
+            
+            // Add active class to selected item
+            const selectedLink = categoryList.querySelector(`a[onclick*="selectCategory('${categoryId}', '${categoryName}')"]`);
+            if (selectedLink) {
+                selectedLink.classList.add('active');
+            }
+        }
+        
+        closeCategoryDropdown();
+    }
+
+    // Close category dropdown
+    function closeCategoryDropdown() {
+        const dropdown = document.getElementById('categoryDropdown');
+        if (dropdown) {
+            dropdown.classList.remove('open');
+        }
+    }
+
+    // Toggle category dropdown
+    function toggleCategoryDropdown() {
+        const dropdown = document.getElementById('categoryDropdown');
+        if (dropdown) {
+            dropdown.classList.toggle('open');
+            
+            // Close country dropdown if open
+            const countryDropdown = document.getElementById('countryDropdown');
+            if (countryDropdown) {
+                countryDropdown.classList.remove('open');
+            }
+        }
+    }
+
+    // Handle Enter key press in search input
+    function handleSearchKeypress(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            submitSearch(event);
+        }
+    }
+
+    // Submit search
+    function submitSearch(event) {
+        event.preventDefault();
+        const queryParams = new URLSearchParams();
+
+        // Add country filter
+        if (selectedCountry) {
+            queryParams.set('country', selectedCountry.id);
+        }
+
+        // Add category filter
+        if (selectedCategoryId) {
+            // If main category selected, find category and set up URL like category slug
+            const cat = categories.find(c => c.id == selectedCategoryId);
+            if (cat) {
+                window.location.href = `{{ route("web.listing", ":category") }}?${queryParams.toString()}`.replace(':category', cat.slug);
+                return;
+            }
+        }
+
+        // Add search query
+        const searchValue = document.getElementById('searchInput');
+        if (searchValue && searchValue.value) {
+            queryParams.set('q', searchValue.value);
+        }
+
+        // Add date filter if present in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const dateFilter = urlParams.get('date_filter');
+        if (dateFilter) {
+            queryParams.set('date_filter', dateFilter);
+        }
+
+        // Build the final URL
+        const baseUrl = '{{ route("web.listing") }}';
+        const queryString = queryParams.toString();
+        const finalUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;
+
+        // Redirect to listing page with all parameters
+        window.location.href = finalUrl;
+    }
 
     // Close dropdown when clicking outside
     document.addEventListener('click', function (event) {
-        if (!event.target.closest('.mega-dropdown')) {
-            megaContent.classList.remove('open');
+        if (!event.target.closest('.search-field')) {
+            const countryDropdown = document.getElementById('countryDropdown');
+            const categoryDropdown = document.getElementById('categoryDropdown');
+            
+            if (countryDropdown) {
+                countryDropdown.classList.remove('open');
+            }
+            if (categoryDropdown) {
+                categoryDropdown.classList.remove('open');
+            }
         }
     });
-  </script>
-
-
-    <script>
-        const citiesByCountry = {
-        "USA": ["Basildon","Bedford","Benfleet","Billericay","Bishops Stortford","Braintree","Brentwood","Bury St Edmunds","Cambridge","Canvey Island","Chelmsford","Cheshunt","Clacton-on-Sea","Colchester","Dunstable","Ely","Felixstowe","Grays","Great Yarmouth","Harlow","Harpenden","Harwich","Hemel Hempstead","Hertford","Hitchin","Hoddesdon","Huntingdon","Ipswich","Kings Lynn","Leighton Buzzard","Lowestoft","Luton","Maldon","Norwich","Peterborough","Saffron Walden","Southend-on-Sea","St Albans","St Ives - Cambs","St Neots","Stevenage","Sudbury","Watford","Welwyn Garden City","Witham","Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","DC","Florida","Georgia","Guam","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","US Virgin Islands","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"],
-        "North East": ["Blyth","Chester-le-Street","Darlington","Durham","Gateshead","Hartlepool","Middlesbrough","Morpeth","Newcastle-upon-Tyne","North Shields","Redcar","South Shields","Stockton-on-Tees","Sunderland","Wallsend","Washington","Whitley Bay"],
-        "Yorkshire": ["Barnsley","Batley","Beverley","Bradford","Bridlington","Castleford","Dewsbury","Doncaster","Grimsby","Halifax","Harrogate","Huddersfield","Hull","Leeds","Rotherham","Scarborough","Sheffield","Wakefield","York"],
-        "East Midlands": ["Arnold","Beeston","Boston","Chesterfield","Corby","Derby","Gainsborough","Grantham","Hinckley","Kettering","Leicester","Lincoln","Loughborough","Mansfield","Nottingham","Skegness","Spalding"],
-        "London": ["Barking & Dagenham","Barnet","Bexley","Brent","Bromley","Camden","City of London","Croydon","Ealing","Enfield","Greenwich","Hackney","Hammersmith & Fulham","Haringey","Harrow","Havering","Hillingdon","Hounslow","Islington","Kensington & Chelsea","Kingston","Lambeth","Lewisham","Merton","Newham","Redbridge","Richmond","Southwark","Sutton","Tower Hamlets","Waltham Forest","Wandsworth","Westminster"],
-        "South West": ["Barnstaple","Bath","Bideford","Bournemouth","Bristol","Cheltenham","Exeter","Gloucester","Plymouth","Swindon","Taunton","Torquay","Truro","Weston-super-Mare","Yeovil"],
-        "Other Countries": ["Algeria","Argentina","Australia","Austria","Bangladesh","Belgium","Brazil","Canada","China","France","Germany","India","Japan","Nepal","New Zealand","Pakistan","Singapore","South Africa","Sri Lanka","United Arab Emirates","United Kingdom","USA","Zimbabwe"]
-        };
-
-        const countryList = document.getElementById('countryList');
-        const cityList = document.getElementById('cityList');
-        const megaContent = document.querySelector('.mega-content');
-        const dropdownButton = document.querySelector('.mega-dropdown > button');
-
-        let selectedCity = null;
-        let selectedCountry = null;
-
-        // Populate country list
-        Object.keys(citiesByCountry).forEach(country => {
-        const li = document.createElement('li');
-        li.innerHTML = `<a href="#" onclick="showCities('${country}')">${country}</a>`;
-        countryList.appendChild(li);
-        });
-
-        // Filter countries
-        function filterCountries() {
-        const input = document.getElementById('countrySearch').value.toLowerCase();
-        document.querySelectorAll('#countryList li').forEach(li => {
-            li.style.display = li.textContent.toLowerCase().includes(input) ? '' : 'none';
-        });
-        }
-
-        // Show cities of selected country
-        function showCities(country) {
-        cityList.innerHTML = '';
-        selectedCountry = country;
-
-        citiesByCountry[country].forEach(city => {
-            const isSelected = (selectedCity === city && selectedCountry === country);
-            const li = document.createElement('li');
-            li.innerHTML = `
-            <a href="#" onclick="selectCity(event, '${city}', '${country}')"
-                style="${isSelected ? 'font-weight:bold;color:#007bff;' : ''}">
-                ${city}
-            </a>`;
-            cityList.appendChild(li);
-        });
-
-        document.getElementById('countryListContainer').style.display = 'none';
-        document.getElementById('cityListContainer').style.display = 'block';
-        }
-
-        // Go back to countries
-        function backToCountries() {
-        document.getElementById('cityListContainer').style.display = 'none';
-        document.getElementById('countryListContainer').style.display = 'block';
-        }
-
-        // Select city and close dropdown
-        function selectCity(event, city, country) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        selectedCity = city;
-        selectedCountry = country;
-        dropdownButton.textContent = `${city}, ${country}`;
-
-        // Close dropdown immediately
-        megaContent.classList.remove('open');
-        dropdownButton.blur();
-
-        // Highlight selected
-        document.querySelectorAll('#cityList a').forEach(a => {
-            a.style.fontWeight = (a.textContent === city) ? 'bold' : 'normal';
-            a.style.color = (a.textContent === city) ? '#007bff' : '';
-        });
-        }
-
-        // Toggle dropdown open/close
-        dropdownButton.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        // Toggle open class
-        megaContent.classList.toggle('open');
-
-        if (megaContent.classList.contains('open')) {
-            // When opened, reset to countries
-            document.getElementById('countryListContainer').style.display = 'block';
-            document.getElementById('cityListContainer').style.display = 'none';
-        }
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function (event) {
-        if (!event.target.closest('.mega-dropdown')) {
-            megaContent.classList.remove('open');
-        }
-        });
-    </script>
+</script>
     @stack('scripts')
 
 </body>
 </html>
-
-

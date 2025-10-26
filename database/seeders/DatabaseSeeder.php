@@ -21,10 +21,10 @@ class DatabaseSeeder extends Seeder
             // ]);
         }
 
-        // $this->call([
-        //     CountrySeeder::class,
-        //     CategorySeeder::class,
-        //     CitySeeder::class,
-        // ]);
+        $this->call([
+            CountrySeeder::class,
+            // CategorySeeder::class,
+            // CitySeeder::class,
+        ]);
     }
 }
