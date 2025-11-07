@@ -127,6 +127,19 @@
             selectedCountryText.textContent = countryName;
         }
         closeCountryDropdown();
+
+        // Navigate to listing with selected country (preserve search and date filters if present)
+        const params = new URLSearchParams(window.location.search);
+        params.set('country', countryId);
+
+        const searchValueInput = document.getElementById('searchInput');
+        if (searchValueInput && searchValueInput.value) {
+            params.set('q', searchValueInput.value);
+        }
+
+        const baseUrl = '{{ route("web.listing") }}';
+        const finalUrl = `${baseUrl}?${params.toString()}`;
+        window.location.href = finalUrl;
     }
 
     // Close country dropdown
@@ -214,6 +227,33 @@
         }
         
         closeCategoryDropdown();
+
+        // Navigate to listing using category slug route, preserving country/search/date filters
+        const params = new URLSearchParams(window.location.search);
+
+        if (selectedCountry) {
+            params.set('country', selectedCountry.id);
+        }
+
+        const searchValueInput = document.getElementById('searchInput');
+        if (searchValueInput && searchValueInput.value) {
+            params.set('q', searchValueInput.value);
+        }
+
+        if (categoryId) {
+            const cat = categories.find(c => c.id == categoryId);
+            if (cat && cat.slug) {
+                const urlWithCategory = `{{ route("web.listing", ":category") }}`.replace(':category', cat.slug);
+                const finalUrl = params.toString() ? `${urlWithCategory}?${params.toString()}` : urlWithCategory;
+                window.location.href = finalUrl;
+                return;
+            }
+        }
+
+        // If "All Categories" or slug not found, go to base listing with params
+        const baseUrl = '{{ route("web.listing") }}';
+        const finalUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+        window.location.href = finalUrl;
     }
 
     // Close category dropdown

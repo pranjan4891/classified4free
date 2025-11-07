@@ -2,25 +2,60 @@
 @section('content')
 
 <style>
-       .pagination {
+    .pagination {
         margin-top: 20px;
         text-align: center;
         padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    .pagination ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .pagination li {
+        display: inline-block;
     }
     .pagination a, .pagination span {
         color: #007bff;
         text-decoration: none;
         display: inline-block;
-        margin: 0 5px;
         padding: 8px 12px;
         border: 1px solid #ddd;
         border-radius: 4px;
         cursor: pointer;
+        min-width: 40px;
+        text-align: center;
+        transition: all 0.2s;
     }
-    .pagination a:hover, .pagination .active span {
+    .pagination a:hover {
         background-color: #007bff;
         color: white;
         border-color: #007bff;
+    }
+    .pagination .active span {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+        font-weight: bold;
+    }
+    .pagination .disabled span {
+        color: #ccc;
+        cursor: not-allowed;
+        border-color: #e0e0e0;
+    }
+    .pagination .disabled span:hover {
+        background-color: transparent;
+        color: #ccc;
+        border-color: #e0e0e0;
     }
     
     .search-filters-applied {
@@ -41,6 +76,13 @@
         margin-right: 8px;
         margin-bottom: 5px;
     }
+    .filter-tag .close-filter {
+        margin-left: 8px;
+        color: #fff;
+        font-weight: bold;
+        text-decoration: none;
+    }
+    .filter-tag .close-filter:hover { text-decoration: underline; }
     
     .clear-filters {
         color: #dc3545;
@@ -79,7 +121,7 @@
         gap: 8px;
         font-size: 14px;
         color: #666;
-        min-width: 150px;
+        min-width: 180px;
         justify-content: space-between;
     }
     
@@ -98,7 +140,7 @@
         border-radius: 4px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         z-index: 1000;
-        min-width: 150px;
+        min-width: 180px;
         display: none;
         list-style: none;
         margin: 0;
@@ -204,21 +246,43 @@
                         @endif
                     </h2>
                     <h4>{{ $ads->total() }} Ads found</h4>
-                    @if(request('q') || request('country') || request('date_filter'))
+                    @if(request('q') || request('country') || request('date_filter') || isset($category) || isset($subcategory))
                         <div class="search-filters-applied">
+                            @php
+                                $qsAll = http_build_query(request()->query());
+                                $qsNoCountry = http_build_query(request()->except('country'));
+                                $qsNoDate = http_build_query(request()->except('date_filter'));
+                                $qsNoSearch = http_build_query(request()->except('q'));
+                            @endphp
                             @if(request('q'))
-                                <span class="filter-tag">Search: "{{ request('q') }}"</span>
+                                <span class="filter-tag">Search: "{{ request('q') }}"
+                                    <a class="close-filter" href="{{ (isset($category) ? route('web.listing', isset($subcategory) ? [$category->slug, $subcategory->slug] : $category->slug) : route('web.listing')) . ($qsNoSearch ? '?' . $qsNoSearch : '') }}">×</a>
+                                </span>
+                            @endif
+                            @if(isset($category) && $category)
+                                <span class="filter-tag">Category: {{ $category->name }}
+                                    <a class="close-filter" href="{{ route('web.listing') . ($qsAll ? '?' . $qsAll : '') }}">×</a>
+                                </span>
+                            @endif
+                            @if(isset($subcategory) && $subcategory)
+                                <span class="filter-tag">Subcategory: {{ $subcategory->name }}
+                                    <a class="close-filter" href="{{ route('web.listing', $category->slug) . ($qsAll ? '?' . $qsAll : '') }}">×</a>
+                                </span>
                             @endif
                             @if(request('country'))
                                 @php
                                     $selectedCountry = \App\Models\Country::find(request('country'));
                                 @endphp
                                 @if($selectedCountry)
-                                    <span class="filter-tag">Country: {{ $selectedCountry->name }}</span>
+                                    <span class="filter-tag">Country: {{ $selectedCountry->name }}
+                                        <a class="close-filter" href="{{ (isset($category) ? route('web.listing', isset($subcategory) ? [$category->slug, $subcategory->slug] : $category->slug) : route('web.listing')) . ($qsNoCountry ? '?' . $qsNoCountry : '') }}">×</a>
+                                    </span>
                                 @endif
                             @endif
                             @if(request('date_filter'))
-                                <span class="filter-tag">Date: {{ ucwords(str_replace('_', ' ', request('date_filter'))) }}</span>
+                                <span class="filter-tag">Date: {{ ucwords(str_replace('_', ' ', request('date_filter'))) }}
+                                    <a class="close-filter" href="{{ (isset($category) ? route('web.listing', isset($subcategory) ? [$category->slug, $subcategory->slug] : $category->slug) : route('web.listing')) . ($qsNoDate ? '?' . $qsNoDate : '') }}">×</a>
+                                </span>
                             @endif
                             <a href="{{ route('web.listing') }}" class="clear-filters">Clear all filters</a>
                         </div>
@@ -226,6 +290,21 @@
                 </header>
                 <div class="listing-actions text-right clearfix"  data-target="#items-listing-area">
                     <div class="inner">
+                        <div class="per-page-action" style="float: left;">
+                            <div class="sort-action">
+                                <button type="button" class="sort-button">
+                                    <i class="fa fa-chevron-down"></i>
+                                    <span id="perPageText">Show {{ request('per_page', 5) }} per page</span>
+                                </button>
+                                <ul class="sort-dropdown">
+                                    <li><a href="#" onclick="applyPerPage(6)" class="{{ request('per_page', 5) == 5 ? 'active' : '' }}">Show 5 per page</a></li>
+                                    <li><a href="#" onclick="applyPerPage(15)" class="{{ request('per_page') == 15 ? 'active' : '' }}">Show 15 per page</a></li>
+                                    <li><a href="#" onclick="applyPerPage(25)" class="{{ request('per_page') == 25 ? 'active' : '' }}">Show 25 per page</a></li>
+                                    <li><a href="#" onclick="applyPerPage(50)" class="{{ request('per_page') == 50 ? 'active' : '' }}">Show 50 per page</a></li>
+                                    <li><a href="#" onclick="applyPerPage(100)" class="{{ request('per_page') == 100 ? 'active' : '' }}">Show 100 per page</a></li>
+                                </ul>
+                            </div>
+                        </div>
 
                         <div class="layout-action">
                             <a href="#" class="active">
@@ -369,7 +448,7 @@
                         </div>
                     @endforelse
                     <div id="pagination" class="pagination">
-                        {{ $ads->links() }}
+                        {{ $ads->onEachSide(2)->links('pagination::default') }}
                     </div>
                 </div>
             </div>
@@ -389,29 +468,45 @@
            e.preventDefault();
 
            var href = $(this).attr('href');
-           var categoryName = href.split('/add-listing/')[1]; // Extract category name from URL
+           var urlPart = href.split('/add-listing/')[1]; // Extract category name from URL
+           
+           // Clean the category name: remove subcategory part, query params, and trailing slashes
+           var categoryName = null;
+           if (urlPart) {
+               // Split by '/' to get just the category slug (first part)
+               categoryName = urlPart.split('/')[0];
+               // Remove any query parameters
+               categoryName = categoryName.split('?')[0];
+               // Remove trailing slash if any
+               categoryName = categoryName.replace(/\/$/, '');
+           }
 
-  if (categoryName) {
+           if (categoryName) {
                // Load subcategories via AJAX
                $.ajax({
                    url: '{{ route("web.subcategories", ":category") }}'.replace(':category', categoryName),
                    type: 'GET',
+                   timeout: 3000, // 3 second timeout
                    beforeSend: function() {
                        $('#subCategoryList').append('<div class="loader">Loading...</div>');
                    },
                    success: function(data) {
                        $('#subCategoryList .loader').remove();
                        updateSubcategories(data);
+                       // Navigate after successful update
+                       window.location.href = href;
                    },
-                   error: function() {
+                   error: function(xhr, status, error) {
                        $('#subCategoryList .loader').remove();
-                       alert('Error loading subcategories');
+                       // Silently fail - just navigate since we're changing pages anyway
+                       console.log('Subcategories could not be loaded, navigating anyway');
+                       window.location.href = href;
                    }
                });
+           } else {
+               // No category name extracted, just navigate
+               window.location.href = href;
            }
-
-           // Navigate to the category page
-           window.location.href = href;
        });
 
        // Optional: Add loading state
@@ -437,6 +532,30 @@
        }
 
    });
+
+   // Reverted to hover-based dropdown; no JS toggle needed
+
+   // Per page functionality - Global scope
+   function applyPerPage(perPage) {
+       console.log('Per page clicked:', perPage);
+       
+       // Get current URL parameters
+       const urlParams = new URLSearchParams(window.location.search);
+       
+       // Update the per_page parameter
+       urlParams.set('per_page', perPage);
+       
+       // Reset to page 1 when changing per_page
+       urlParams.set('page', '1');
+       
+       // Build the new URL
+       const baseUrl = window.location.pathname;
+       const queryString = urlParams.toString();
+       const finalUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;
+       
+       // Redirect to the new URL
+       window.location.href = finalUrl;
+   }
 
    // Date filter functionality - Global scope
    function applyDateFilter(dateFilter) {

@@ -38,6 +38,281 @@
       <link href="{{asset('public/assets/css/style.css')}}" rel="stylesheet" type="text/css">
       <!--put your custom css on the file below-->
       <link href="{{asset('public/assets/css/custom.css')}}" rel="stylesheet" type="text/css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+      <style>
+         /* Form Design Improvements */
+         .form-wrapper {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+         }
+         
+         .field-block {
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+         }
+         
+         .field-block label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0;
+            padding-right: 15px;
+         }
+         
+         .field-block .required::after {
+            content: " *";
+            color: #dc3545;
+         }
+         
+         .field-block input[type="text"],
+         .field-block input[type="email"],
+         .field-block input[type="tel"],
+         .field-block input[type="number"],
+         .field-block textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fff;
+            font-family: inherit;
+         }
+         
+         .field-block select {
+            width: 100%;
+            padding: 12px 35px 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fff;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10L6 9z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            cursor: pointer;
+            font-family: inherit;
+         }
+         
+         .field-block select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23007bff' d='M6 9L1 4h10L6 9z'/%3E%3C/svg%3E");
+         }
+         
+         .field-block input:focus,
+         .field-block textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+         }
+         
+         .field-block input::placeholder,
+         .field-block select option:first-child {
+            color: #999;
+         }
+         
+         .field-block select option {
+            color: #333;
+            padding: 8px;
+         }
+         
+         /* Ensure all inputs have same height and alignment */
+         .field-block input,
+         .field-block select,
+         .field-block textarea {
+            min-height: 48px;
+            box-sizing: border-box;
+            line-height: 1.5;
+         }
+         
+         .field-block select {
+            padding-right: 40px;
+         }
+         
+         /* Price fields alignment */
+         .price-fields {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+         }
+         
+         .price-fields > div {
+            flex: 1;
+         }
+         
+         /* CKEditor container */
+         .ck-editor-container {
+            min-height: 250px;
+         }
+         
+         /* File input styling */
+         input[type="file"] {
+            padding: 8px;
+            border: 2px dashed #ddd;
+            border-radius: 6px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+         }
+         
+         input[type="file"]:hover {
+            border-color: #007bff;
+            background: #f0f7ff;
+         }
+         
+         /* Submit buttons */
+         .form-submit-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+         }
+         
+         .btn {
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            border: none;
+         }
+         
+         .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+         }
+         
+         .btn-blue {
+            background: #007bff;
+            color: #fff;
+         }
+         
+         .btn-green {
+            background: #28a745;
+            color: #fff;
+         }
+         
+         /* Mobile Responsive */
+         @media (max-width: 768px) {
+            .form-wrapper {
+               padding: 20px;
+            }
+            
+            .field-block {
+               flex-direction: column;
+               align-items: flex-start;
+            }
+            
+            .field-block label {
+               margin-bottom: 8px;
+               padding-right: 0;
+            }
+            
+            .price-fields {
+               flex-direction: column;
+               gap: 10px;
+            }
+            
+            .form-submit-buttons {
+               flex-direction: column;
+            }
+            
+            .form-submit-buttons .btn {
+               width: 100%;
+            }
+         }
+         
+         .is-invalid {
+            border-color: #dc3545 !important;
+         }
+         .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+         }
+         /* Hide the "Rich Text Editor" label and screen reader text */
+         .ck-editor__label,
+         label[for="description"]:not(.required),
+         .ck-editor__main label,
+         .ck-toolbar__label,
+         .ck-label,
+         label[aria-describedby],
+         .ck.ck-labeled-field-view label {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+         }
+         /* Target specific CKEditor accessibility labels */
+         label[for="description"]:not(.required) {
+            display: none !important;
+         }
+         /* Hide any text that says "Rich Text Editor" */
+         label:contains("Rich Text Editor"),
+         span:contains("Rich Text Editor") {
+            display: none !important;
+         }
+      </style>
+      <!-- Make sure Font Awesome is included -->
+      <style>
+         select#headingSelect {
+         background: #efefef;
+         padding: 0 0 3px;
+         }
+         h1, h2, h3, h4, h5, .shortcodes-page h6 {
+         margin: 0;
+         color: #151515;
+         font-weight: 600;
+         }
+      </style>
+      <style>
+         .tag-container {
+         display: flex;
+         flex-wrap: wrap;
+         gap: 6px;
+         border: 1px solid #ccc;
+         padding: 6px;
+         border-radius: 4px;
+         min-height: 40px;
+         align-items: center;
+         }
+         .tag {
+         background: #007bff;
+         color: #fff;
+         padding: 5px 10px;
+         border-radius: 20px;
+         display: flex;
+         align-items: center;
+         gap: 6px;
+         font-size: 14px;
+         }
+         .tag button {
+         background: none;
+         border: none;
+         color: #fff;
+         font-weight: bold;
+         cursor: pointer;
+         padding: 0;
+         line-height: 1;
+         }
+         .tag input {
+         border: none;
+         outline: none;
+         flex-grow: 1;
+         min-width: 120px;
+         font-size: 14px;
+         }
+      </style>
       <style>
          /* Modern Header Search Design */
          .header-search-container {
@@ -150,6 +425,7 @@
          .dropdown-search {
             padding: 15px;
             border-bottom: 1px solid #e0e0e0;
+            position: relative; /* ensure ::after icon positions relative to this container */
          }
          
         .dropdown-search input {

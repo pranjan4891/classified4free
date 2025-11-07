@@ -1,0 +1,93 @@
+[1mdiff --git a/resources/views/web/listing.blade.php b/resources/views/web/listing.blade.php[m
+[1mindex e976a0b..322a68b 100644[m
+[1m--- a/resources/views/web/listing.blade.php[m
+[1m+++ b/resources/views/web/listing.blade.php[m
+[36m@@ -41,6 +41,13 @@[m
+         margin-right: 8px;[m
+         margin-bottom: 5px;[m
+     }[m
+[32m+[m[32m    .filter-tag .close-filter {[m
+[32m+[m[32m        margin-left: 8px;[m
+[32m+[m[32m        color: #fff;[m
+[32m+[m[32m        font-weight: bold;[m
+[32m+[m[32m        text-decoration: none;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    .filter-tag .close-filter:hover { text-decoration: underline; }[m
+     [m
+     .clear-filters {[m
+         color: #dc3545;[m
+[36m@@ -79,7 +86,7 @@[m
+         gap: 8px;[m
+         font-size: 14px;[m
+         color: #666;[m
+[31m-        min-width: 150px;[m
+[32m+[m[32m        min-width: 180px;[m
+         justify-content: space-between;[m
+     }[m
+     [m
+[36m@@ -98,7 +105,7 @@[m
+         border-radius: 4px;[m
+         box-shadow: 0 4px 6px rgba(0,0,0,0.1);[m
+         z-index: 1000;[m
+[31m-        min-width: 150px;[m
+[32m+[m[32m        min-width: 180px;[m
+         display: none;[m
+         list-style: none;[m
+         margin: 0;[m
+[36m@@ -204,21 +211,43 @@[m
+                         @endif[m
+                     </h2>[m
+                     <h4>{{ $ads->total() }} Ads found</h4>[m
+[31m-                    @if(request('q') || request('country') || request('date_filter'))[m
+[32m+[m[32m                    @if(request('q') || request('country') || request('date_filter') || isset($category) || isset($subcategory))[m
+                         <div class="search-filters-applied">[m
+[32m+[m[32m                            @php[m
+[32m+[m[32m                                $qsAll = http_build_query(request()->query());[m
+[32m+[m[32m                                $qsNoCountry = http_build_query(request()->except('country'));[m
+[32m+[m[32m                                $qsNoDate = http_build_query(request()->except('date_filter'));[m
+[32m+[m[32m                                $qsNoSearch = http_build_query(request()->except('q'));[m
+[32m+[m[32m                            @endphp[m
+                             @if(request('q'))[m
+[31m-                                <span class="filter-tag">Search: "{{ request('q') }}"</span>[m
+[32m+[m[32m                                <span class="filter-tag">Search: "{{ request('q') }}"[m
+[32m+[m[32m                                    <a class="close-filter" href="{{ (isset($category) ? route('web.listing', isset($subcategory) ? [$category->slug, $subcategory->slug] : $category->slug) : route('web.listing')) . ($qsNoSearch ? '?' . $qsNoSearch : '') }}">×</a>[m
+[32m+[m[32m                                </span>[m
+[32m+[m[32m                            @endif[m
+[32m+[m[32m                            @if(isset($category) && $category)[m
+[32m+[m[32m                                <span class="filter-tag">Category: {{ $category->name }}[m
+[32m+[m[32m                                    <a class="close-filter" href="{{ route('web.listing') . ($qsAll ? '?' . $qsAll : '') }}">×</a>[m
+[32m+[m[32m                                </span>[m
+[32m+[m[32m                            @endif[m
+[32m+[m[32m                            @if(isset($subcategory) && $subcategory)[m
+[32m+[m[32m                                <span class="filter-tag">Subcategory: {{ $subcategory->name }}[m
+[32m+[m[32m                                    <a class="close-filter" href="{{ route('web.listing', $category->slug) . ($qsAll ? '?' . $qsAll : '') }}">×</a>[m
+[32m+[m[32m                                </span>[m
+                             @endif[m
+                             @if(request('country'))[m
+                                 @php[m
+                                     $selectedCountry = \App\Models\Country::find(request('country'));[m
+                                 @endphp[m
+                                 @if($selectedCountry)[m
+[31m-                                    <span class="filter-tag">Country: {{ $selectedCountry->name }}</span>[m
+[32m+[m[32m                                    <span class="filter-tag">Country: {{ $selectedCountry->name }}[m
+[32m+[m[32m                                        <a class="close-filter" href="{{ (isset($category) ? route('web.listing', isset($subcategory) ? [$category->slug, $subcategory->slug] : $category->slug) : route('web.listing')) . ($qsNoCountry ? '?' . $qsNoCountry : '') }}">×</a>[m
+[32m+[m[32m                                    </span>[m
+                                 @endif[m
+                             @endif[m
+                             @if(request('date_filter'))[m
+[31m-                                <span class="filter-tag">Date: {{ ucwords(str_replace('_', ' ', request('date_filter'))) }}</span>[m
+[32m+[m[32m                                <span class="filter-tag">Date: {{ ucwords(str_replace('_', ' ', request('date_filter'))) }}[m
+[32m+[m[32m                                    <a class="close-filter" href="{{ (isset($category) ? route('web.listing', isset($subcategory) ? [$category->slug, $subcategory->slug] : $category->slug) : route('web.listing')) . ($qsNoDate ? '?' . $qsNoDate : '') }}">×</a>[m
+[32m+[m[32m                                </span>[m
+                             @endif[m
+                             <a href="{{ route('web.listing') }}" class="clear-filters">Clear all filters</a>[m
+                         </div>[m
+[36m@@ -438,6 +467,8 @@[m [mfunction updateSubcategories(data) {[m
+ [m
+    });[m
+ [m
+[32m+[m[32m   // Reverted to hover-based dropdown; no JS toggle needed[m
+[32m+[m
+    // Date filter functionality - Global scope[m
+    function applyDateFilter(dateFilter) {[m
+        console.log('Date filter clicked:', dateFilter);[m

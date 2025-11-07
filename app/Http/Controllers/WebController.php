@@ -115,7 +115,15 @@ class WebController extends Controller
             }
         }
 
-        $ads = $query->paginate(6);
+        // Get per_page from request, default to 6
+        $perPage = $request->get('per_page', 5);
+        // Validate per_page to prevent abuse
+        $allowedPerPage = [5, 15, 25, 50, 100];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 6;
+        }
+        
+        $ads = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
         $categories = Category::with('subcategories')->get();
 
         return view('web.listing', compact('ads', 'categories', 'category', 'subcategory', 'country', 'city'));
